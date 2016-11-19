@@ -134,7 +134,7 @@
             android:id="@+id/playingMusic"
             android:text="No Music Playing Now"
             android:textSize="15dp"
-            android:layout_marginTop="15dp"
+            android:layout_marginTop="10dp"
             android:layout_marginLeft="35dp"
             android:fontFamily="monospace"
             android:textStyle="bold"
