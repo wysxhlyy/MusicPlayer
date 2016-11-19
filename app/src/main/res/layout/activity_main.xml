@@ -10,52 +10,74 @@
     android:paddingTop="@dimen/activity_vertical_margin"
     tools:context="com.example.victor.musicplayer.MainActivity"
     android:orientation="vertical"
+    android:background="@color/lightred"
+
     >
 
     <TextView
         android:layout_width="wrap_content"
-        android:layout_height="wrap_content" />
+        android:layout_height="wrap_content"
+        android:text="Music List"
+        android:textSize="30dp"
+        android:textColor="@color/black"
+        android:fontFamily="cursive"
+        android:layout_marginLeft="120dp"
+
+        />
 
     <ListView
         android:textAlignment="center"
         android:layout_width="match_parent"
-        android:layout_height="400dp"
+        android:layout_height="350dp"
         android:id="@+id/listView"
+        android:layout_marginBottom="30dp"
+        android:divider="@color/black"
+        android:dividerHeight="5px"
+        android:layout_marginTop="10dp"
+        android:layout_marginLeft="20dp"
+        android:layout_marginRight="20dp"
+        android:headerDividersEnabled="true"
+        android:footerDividersEnabled="true"
+
         >
 
     </ListView>
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content">
+        android:layout_height="wrap_content"
+        >
 
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="pause"
+            android:layout_width="180px"
+            android:layout_height="180px"
             android:id="@+id/pp"
-            android:layout_marginLeft="15dp"
+            android:layout_marginLeft="30dp"
+            android:background="@drawable/pause"
             />
 
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Stop"
+            android:layout_width="180px"
+            android:layout_height="180px"
             android:id="@+id/stop"
+            android:layout_marginLeft="35dp"
+            android:background="@drawable/stop"
             />
 
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Minimize"
+            android:layout_width="180px"
+            android:layout_height="180px"
             android:id="@+id/minimize"
+            android:layout_marginLeft="35dp"
+            android:background="@drawable/minimize"
             />
 
         <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="Quit"
+            android:layout_width="180px"
+            android:layout_height="180px"
             android:id="@+id/quit"
+            android:layout_marginLeft="35dp"
+            android:background="@drawable/error"
             />
 
 
@@ -72,6 +94,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
             android:id="@+id/musicProgTime"
+            android:textColor="@color/black"
             />
 
         <SeekBar
@@ -86,6 +109,7 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="30dp"
             android:id="@+id/musicTime"
+            android:textColor="@color/black"
             />
 
     </LinearLayout>
@@ -94,27 +118,28 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content">
 
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/playingMusic"
-            android:text="No Music Playing Now"
-            android:textSize="15dp"
-            android:layout_marginTop="10dp"
-            android:layout_marginLeft="55dp"
-            android:textColor="@color/red"
-            />
-
-        <Button
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
+        <ImageButton
+            android:layout_width="100px"
+            android:layout_height="100px"
             android:id="@+id/playMethod"
             android:layout_marginLeft="20dp"
             android:layout_marginTop="10dp"
-            android:text="sequencial"
+            android:background="@drawable/seqplay"
             />
 
-
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:textAlignment="center"
+            android:id="@+id/playingMusic"
+            android:text="No Music Playing Now"
+            android:textSize="15dp"
+            android:layout_marginTop="15dp"
+            android:layout_marginLeft="35dp"
+            android:fontFamily="monospace"
+            android:textStyle="bold"
+            android:textColor="@color/black"
+            />
     </LinearLayout>
 
 

@@ -37,6 +37,7 @@ public class playService extends Service {
         binder=new MyBinder();
         player=new MP3Player();
 
+        //create the Notification
         PendingIntent pi=PendingIntent.getActivity(this,0,new Intent(this,MainActivity.class),0);
         Resources r=getResources();
         Notification notification=new NotificationCompat.Builder(this)
@@ -53,10 +54,6 @@ public class playService extends Service {
     }
 
     public class MyBinder extends Binder{
-
-        playService getService(){
-            return playService.this;
-        }
 
         void playMusic(){
             playService.this.playMusic();
@@ -84,10 +81,6 @@ public class playService extends Service {
 
         MP3Player.MP3PlayerState musicState(){
             return playService.this.musicState();
-        }
-
-        String musicFilePath(){
-            return playService.this.musicFilePath();
         }
 
         void setMusicProgress(int progress){
@@ -126,10 +119,6 @@ public class playService extends Service {
     public int musicProgress(){
 
         return player.getProgress();
-    }
-
-    public String musicFilePath(){
-        return player.getFilePath();
     }
 
     public int musicDuration(){

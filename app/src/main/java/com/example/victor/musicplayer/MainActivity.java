@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.ServiceConnection;
+import android.media.Image;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
@@ -38,7 +39,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button pp;
     private Button quit;
     private Button minimize;
-    private Button playMethod;
+    private ImageButton playMethod;
 
     private SeekBar progress;
     private int musicProgress;
@@ -86,6 +87,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         pp.setOnClickListener(this);
         minimize.setOnClickListener(this);
         quit.setOnClickListener(this);
+        playMethod.setOnClickListener(this);
 
         progress.setOnSeekBarChangeListener(new SeekBar.OnSeekBarChangeListener() {
             @Override
@@ -110,7 +112,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
-
+    //Deal with the onClick issue.
     public void onClick(View view){
         switch (view.getId()){
             case R.id.stop:
@@ -119,10 +121,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.pp:
                 if(myMusicService.musicState()== MP3Player.MP3PlayerState.PLAYING){
                     myMusicService.pauseMusic();
-                    pp.setText("play");
+                    pp.setBackground(getDrawable(R.drawable.play));
                 }else if(myMusicService.musicState()== MP3Player.MP3PlayerState.PAUSED){
                     myMusicService.playMusic();
-                    pp.setText("pause");
+                    pp.setBackground(getDrawable(R.drawable.pause));
                 }
                 checkProgress();
                 break;
@@ -139,15 +141,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case R.id.playMethod:
                 if(sequencial){
                     sequencial=false;
-                    playMethod.setText("random");
+                    playMethod.setBackground(getDrawable(R.drawable.random));
+                    Toast.makeText(this,"switch to random play",Toast.LENGTH_SHORT).show();
                 }else {
                     sequencial=true;
-                    playMethod.setText("sequencial");
+                    playMethod.setBackground(getDrawable(R.drawable.seqplay));
+                    Toast.makeText(this,"switch to sequential play",Toast.LENGTH_SHORT).show();
                 }
                 break;
         }
     }
 
+    //warning the user when want to quit the app, because it will stop the music.
     public void quitWarn(){
         AlertDialog.Builder builder=new AlertDialog.Builder(MainActivity.this);
         builder.setTitle("Quit");
@@ -173,6 +178,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 
+    //initial the components.
     public void initialComponent(){
         pp=(Button)findViewById(R.id.pp);
         stop=(Button)findViewById(R.id.stop);
@@ -183,10 +189,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         progress=(SeekBar)findViewById(R.id.progress);
         lv = (ListView) findViewById(R.id.listView);
         playingMusic=(TextView)findViewById(R.id.playingMusic);
-        playMethod=(Button) findViewById(R.id.playMethod);
+        playMethod=(ImageButton)findViewById(R.id.playMethod);
     }
 
 
+    /*
+        Handle the listview,which is used to choose the music.
+        To make the listview show the name of music, I use the string type of Arrayadapter,and then
+        use name to find the music file.
+     */
     public void chooseMusic(){
         File musicDir = new File( Environment.getExternalStorageDirectory().getPath()+ "/Music/");
         list = musicDir.listFiles();
@@ -194,6 +205,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         for(int i=0;i<list.length;i++){
             strs[i]=list[i].getName();
         }
+
         lv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, strs));
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> myAdapter, View myView, int myItemInt, long mylng) {
@@ -223,19 +235,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     myMusicService.playMusic();
                     progress.setProgress(myMusicService.musicProgress());
                 }
-
                 musicTime.setText(msToMin(myMusicService.musicDuration()));
                 checkProgress();
             } });
     }
 
-
+    //transfer the millisecond to minutes
     public String msToMin(long ms){
         SimpleDateFormat sdf=new SimpleDateFormat("mm:ss");
         return sdf.format(ms);
     }
 
-
+    //check the progress of music. Used to handle the action of seekbar.
     public void checkProgress(){
         new Thread(new Runnable() {
             @Override
@@ -256,10 +267,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     });
 
                     try {
-                        Thread.sleep(1000);
+                        Thread.sleep(1000); //Update the seekbar each 1s.
                         if(sequencial){
-                            sequencialPlay();
-                        }else {
+                            sequentialPlay();
+                        }else{
                             randomPlay();
                         }
                     } catch (InterruptedException e) {
@@ -270,7 +281,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }).start();
     }
 
-    public void sequencialPlay(){
+    /*
+        The sequential play method means the app will continue to play next music
+        when the previous one has finished.
+     */
+    public void sequentialPlay(){
         if(myMusicService.musicProgress()>=(myMusicService.musicDuration()-1500)&& myMusicService.musicState()== MP3Player.MP3PlayerState.PLAYING){
             Log.d("g53mdp","come in") ;
             String selectedFromName=" ";
@@ -289,7 +304,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 try{
                     myMusicService.loadMusic(nextMusic.getAbsolutePath());
                 }catch (Exception e){
-                    Toast.makeText(MainActivity.this,"Fail to load music,try again",Toast.LENGTH_SHORT).show();
+                    Log.d("musicplayer","Fail to load music");
                 }
                 myMusicService.playMusic();
                 progress.setMax(myMusicService.musicDuration());
@@ -297,6 +312,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    /*
+        The random play method means the app will randomly choose next music in the
+        listview after one music is finished.
+     */
     public void randomPlay(){
         if(myMusicService.musicProgress()>=(myMusicService.musicDuration()-1000)&& myMusicService.musicState()== MP3Player.MP3PlayerState.PLAYING){
             Log.d("g53mdp","come in") ;
@@ -316,20 +335,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             try{
                 myMusicService.loadMusic(nextMusic.getAbsolutePath());
             }catch (Exception e){
-                Toast.makeText(MainActivity.this,"Fail to load music,try again",Toast.LENGTH_SHORT).show();
+                Log.d("musicplayer","Fail to load the music");
             }
             myMusicService.playMusic();
+            progress.setMax(myMusicService.musicDuration());
         }
     }
 
-
-
-
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-    }
-
+    //destroy the activity and unbind the service.
     protected void onDestroy(){
         Log.d("g54mdp","Activity Destroyed");
         if(serviceConnection!=null){
