@@ -21,7 +21,6 @@
         android:layout_width="match_parent"
         android:layout_height="400dp"
         android:id="@+id/listView"
-        android:listSelector="@color/colorPrimaryDark"
         >
 
     </ListView>
@@ -88,6 +87,33 @@
             android:layout_marginTop="30dp"
             android:id="@+id/musicTime"
             />
+
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content">
+
+        <TextView
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/playingMusic"
+            android:text="No Music Playing Now"
+            android:textSize="15dp"
+            android:layout_marginTop="10dp"
+            android:layout_marginLeft="55dp"
+            android:textColor="@color/red"
+            />
+
+        <Button
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:id="@+id/playMethod"
+            android:layout_marginLeft="20dp"
+            android:layout_marginTop="10dp"
+            android:text="sequencial"
+            />
+
 
     </LinearLayout>
 

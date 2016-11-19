@@ -97,4 +97,6 @@ public class MP3Player {
     public void setMusicProgress(int progress){
         mediaPlayer.seekTo(progress);
     }
+
+
 }

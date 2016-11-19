@@ -8,6 +8,7 @@ import android.content.ServiceConnection;
 import android.os.Environment;
 import android.os.Handler;
 import android.os.IBinder;
+import android.support.annotation.DrawableRes;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
@@ -16,6 +17,7 @@ import android.view.View;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.Button;
+import android.widget.ImageButton;
 import android.widget.ListView;
 import android.widget.SeekBar;
 import android.widget.TextView;
@@ -23,18 +25,20 @@ import android.widget.Toast;
 
 import java.io.File;
 import java.text.SimpleDateFormat;
+import java.util.Random;
 
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private playService.MyBinder myMusicService;
-    private String chosenMusic;
+    private File chosenMusic;
 
 
     private Button stop;
     private Button pp;
     private Button quit;
     private Button minimize;
+    private Button playMethod;
 
     private SeekBar progress;
     private int musicProgress;
@@ -45,7 +49,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private TextView musicTime;
     private TextView musicProgTime;
     private Handler h= new Handler();
-    private View v;
+    private int musicPos;
+    private TextView playingMusic;
+    private boolean sequencial;
 
 
     private ServiceConnection serviceConnection=new ServiceConnection() {
@@ -99,6 +105,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
+        sequencial=true;
+
     }
 
 
@@ -127,6 +135,15 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     serviceConnection=null;
                 }
                 finish();
+                break;
+            case R.id.playMethod:
+                if(sequencial){
+                    sequencial=false;
+                    playMethod.setText("random");
+                }else {
+                    sequencial=true;
+                    playMethod.setText("sequencial");
+                }
                 break;
         }
     }
@@ -165,6 +182,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         musicProgTime=(TextView)findViewById(R.id.musicProgTime);
         progress=(SeekBar)findViewById(R.id.progress);
         lv = (ListView) findViewById(R.id.listView);
+        playingMusic=(TextView)findViewById(R.id.playingMusic);
+        playMethod=(Button) findViewById(R.id.playMethod);
     }
 
 
@@ -178,6 +197,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         lv.setAdapter(new ArrayAdapter<String>(this, android.R.layout.simple_list_item_1, strs));
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> myAdapter, View myView, int myItemInt, long mylng) {
+                musicPos=myItemInt;
                 String selectedFromName=(String)(lv.getItemAtPosition(myItemInt));
                 File selectedFromList=null;
                 for(int i=0;i<list.length;i++){
@@ -185,7 +205,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         selectedFromList=list[i];
                     }
                 }
-                chosenMusic=selectedFromList.getAbsolutePath();
+                chosenMusic=selectedFromList;
                 if(myMusicService==null){
                     try{
                         myMusicService.loadMusic(selectedFromList.getAbsolutePath());
@@ -224,16 +244,24 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 while(myMusicService.musicProgress()<=myMusicService.musicDuration()){
                     musicProgress=myMusicService.musicProgress();
                     progress.setProgress(musicProgress);
-
                     h.post(new Runnable() {
                         @Override
                         public void run() {
                             musicProgTime.setText(msToMin(myMusicService.musicProgress()));
+                            if(myMusicService.musicState()!= MP3Player.MP3PlayerState.STOPPED){
+                                playingMusic.setText(list[musicPos].getName());
+                                musicTime.setText(msToMin(myMusicService.musicDuration()));
+                            }
                         }
                     });
 
                     try {
                         Thread.sleep(1000);
+                        if(sequencial){
+                            sequencialPlay();
+                        }else {
+                            randomPlay();
+                        }
                     } catch (InterruptedException e) {
                         e.printStackTrace();
                     }
@@ -241,6 +269,60 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         }).start();
     }
+
+    public void sequencialPlay(){
+        if(myMusicService.musicProgress()>=(myMusicService.musicDuration()-1500)&& myMusicService.musicState()== MP3Player.MP3PlayerState.PLAYING){
+            Log.d("g53mdp","come in") ;
+            String selectedFromName=" ";
+                if(musicPos==list.length-1){
+                    musicPos=-1;
+                }
+                selectedFromName=(String)(lv.getItemAtPosition(musicPos+1));
+                File nextMusic=null;
+                for(int i=0;i<list.length;i++){
+                    if(list[i].getName().equals(selectedFromName)){
+                        nextMusic=list[i];
+                    }
+                }
+                musicPos++;
+                myMusicService.stopMusic();
+                try{
+                    myMusicService.loadMusic(nextMusic.getAbsolutePath());
+                }catch (Exception e){
+                    Toast.makeText(MainActivity.this,"Fail to load music,try again",Toast.LENGTH_SHORT).show();
+                }
+                myMusicService.playMusic();
+                progress.setMax(myMusicService.musicDuration());
+
+        }
+    }
+
+    public void randomPlay(){
+        if(myMusicService.musicProgress()>=(myMusicService.musicDuration()-1000)&& myMusicService.musicState()== MP3Player.MP3PlayerState.PLAYING){
+            Log.d("g53mdp","come in") ;
+            String selectedFromName=" ";
+            Random randomGenerator=new Random();
+            musicPos=randomGenerator.nextInt(list.length);
+            Log.d("test",musicPos+"");
+
+            selectedFromName=(String)(lv.getItemAtPosition(musicPos));
+            File nextMusic=null;
+            for(int i=0;i<list.length;i++){
+                if(list[i].getName().equals(selectedFromName)){
+                    nextMusic=list[i];
+                }
+            }
+            myMusicService.stopMusic();
+            try{
+                myMusicService.loadMusic(nextMusic.getAbsolutePath());
+            }catch (Exception e){
+                Toast.makeText(MainActivity.this,"Fail to load music,try again",Toast.LENGTH_SHORT).show();
+            }
+            myMusicService.playMusic();
+        }
+    }
+
+
 
 
     @Override
