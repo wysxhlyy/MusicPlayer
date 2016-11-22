@@ -292,7 +292,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 if(musicPos==list.length-1){
                     musicPos=-1;
                 }
-                selectedFromName=(String)(lv.getItemAtPosition(musicPos+1));
+                selectedFromName=(String )(lv.getItemAtPosition(musicPos+1));
                 File nextMusic=null;
                 for(int i=0;i<list.length;i++){
                     if(list[i].getName().equals(selectedFromName)){
